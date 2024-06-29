@@ -11,6 +11,8 @@ function App() {
     useState<boolean>(false);
   const [accounts, setAccounts] = useState<string[] | null>(null);
   const [connectedAccount, setConnectedAccount] = useState<string | null>(null);
+  const [messageToSign, setMessageToSign] = useState<string | null>(null);
+  const [signingResult, setSigningResult] = useState<string | null>(null);
   useEffect(() => {
     // ensure that there is an injected the Ethereum provider
     if (window.ethereum) {
@@ -74,6 +76,22 @@ function App() {
     // get the first account and populate placeholder
     setConnectedAccount(`Account: ${allAccounts[0]}`);
   }
+
+  // click event for "Sign Message" button
+  async function signMessage() {
+    if (web3 === null || accounts === null || messageToSign === null) {
+      return;
+    }
+
+    // sign message with first MetaMask account
+    const signature = await web3.eth.personal.sign(
+      messageToSign,
+      accounts[0],
+      "",
+    );
+
+    setSigningResult(signature);
+  }
   return (
     <>
       <div id="warn" style={{ color: "red" }}>
@@ -91,6 +109,24 @@ function App() {
         >
           Request MetaMask Accounts
         </button>
+      </div>
+      <div>
+        <input
+          onChange={(e) => {
+            setMessageToSign(e.target.value);
+          }}
+          id="messageToSign"
+          placeholder="Message to Sign"
+          disabled={connectedAccount === null}
+        />
+        <button
+          onClick={() => signMessage()}
+          id="signMessage"
+          disabled={connectedAccount === null}
+        >
+          Sign Message
+        </button>
+        <div id="signingResult">{signingResult}</div>
       </div>
     </>
   );

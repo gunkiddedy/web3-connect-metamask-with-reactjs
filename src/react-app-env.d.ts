@@ -1,5 +1,3 @@
-/// <reference types="react-scripts" />
-
 import { MetaMaskProvider } from "web3";
 
 /// <reference types="react-scripts" />

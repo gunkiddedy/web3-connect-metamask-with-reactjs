@@ -13,6 +13,9 @@ function App() {
   const [connectedAccount, setConnectedAccount] = useState<string | null>(null);
   const [messageToSign, setMessageToSign] = useState<string | null>(null);
   const [signingResult, setSigningResult] = useState<string | null>(null);
+  const [originalMessage, setOriginalMessage] = useState<string | null>(null);
+  const [signedMessage, setSignedMessage] = useState<string | null>(null);
+  const [signingAccount, setSigningAccount] = useState<string | null>(null);
   useEffect(() => {
     // ensure that there is an injected the Ethereum provider
     if (window.ethereum) {
@@ -92,6 +95,20 @@ function App() {
 
     setSigningResult(signature);
   }
+
+  // click event for "Recover Account" button
+  async function recoverAccount() {
+    if (web3 === null || originalMessage === null || signedMessage === null) {
+      return;
+    }
+    // recover account from signature
+    const account = await web3.eth.personal.ecRecover(
+      originalMessage,
+      signedMessage,
+    );
+
+    setSigningAccount(account);
+  }
   return (
     <>
       <div id="warn" style={{ color: "red" }}>
@@ -127,6 +144,32 @@ function App() {
           Sign Message
         </button>
         <div id="signingResult">{signingResult}</div>
+      </div>
+      <div>
+        <input
+          onChange={(e) => {
+            setOriginalMessage(e.target.value);
+          }}
+          id="originalMessage"
+          placeholder="Original Message"
+          disabled={connectedAccount === null}
+        />
+        <input
+          onChange={(e) => {
+            setSignedMessage(e.target.value);
+          }}
+          id="signedMessage"
+          placeholder="Signed Message"
+          disabled={connectedAccount === null}
+        />
+        <button
+          onClick={() => recoverAccount()}
+          id="recoverAccount"
+          disabled={connectedAccount === null}
+        >
+          Recover Account
+        </button>
+        <div id="signingAccount">{signingAccount}</div>
       </div>
     </>
   );
